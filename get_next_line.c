@@ -1,10 +1,9 @@
 # include "get_next_line.h"
-
-#include <limits.h>
-#include <string.h>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+# include <limits.h>
+# include <string.h>
+# include <stdio.h>
+# include <sys/stat.h>
+# include <fcntl.h>
 
 int	ft_strlen(const char *str)
 {
@@ -106,9 +105,7 @@ char	*get_next_line(int fd)
 	}
 	while (ft_strchr(buffer[fd], '\n') == NULL && read_bytes != 0)
 	{
-		puts("caralho");
 		ft_realloc(&buffer[fd], BUFFER_SIZE);	
-		puts("saiu do caralho");
 		if (!buffer[fd])
 			return (NULL);
 		read_bytes = read(fd, buffer[fd], BUFFER_SIZE);
