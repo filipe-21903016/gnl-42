@@ -1,6 +1,6 @@
 # include "get_next_line.h"
 # include <limits.h>
-#include <stdlib.h>
+# include <stdlib.h>
 # include <string.h>
 # include <stdio.h>
 # include <sys/stat.h>
@@ -40,13 +40,15 @@ char *get_line(char **lines) {
 char	*get_next_line(int fd)
 {
     int read_bytes;
-	//initialize buffer
-    char *buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
+    char *buffer;
     char *line;
-    static char *lines = NULL;
+    static char *lines;
 
-    //initialize line
+    buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
+    if (!buffer)
+        return (NULL);
     read_bytes = -1;
+    lines = NULL;
     while (read_bytes != 0 && ft_strchr(buffer, '\n') == -1)
     {
         read_bytes = read(fd, buffer, BUFFER_SIZE);
@@ -66,6 +68,6 @@ int main(int ac, char **av)
 	(void)ac;
 	av++;
     while ((line = get_next_line(fd)) != NULL) 
-        printf("%s", line);
+        /* printf("%s", line); */
     close(fd);
 }
