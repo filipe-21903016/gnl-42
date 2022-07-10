@@ -1,131 +1,71 @@
 # include "get_next_line.h"
 # include <limits.h>
+#include <stdlib.h>
 # include <string.h>
 # include <stdio.h>
 # include <sys/stat.h>
 # include <fcntl.h>
 
-int	ft_strlen(const char *str)
-{
-	int	count;
-
-	count = 0;
-	while (*str++)
-		count++;
-	return (count);
+void append_buffer(char **lines, char *buffer, int size) {
+  if (!*lines)
+    *lines = malloc(sizeof(char) * BUFFER_SIZE);
+  else
+    ft_realloc(lines, size);
+  char *p_line = *lines;
+  while (*p_line)
+    p_line++;
+  while (*buffer)
+    *p_line++ = *buffer++;
+  *p_line = '\0';
 }
 
-char	*ft_strchr(const char *s, int c)
-{
-	int	i;
-
-	i = 0;
-	while (s[i] != '\0')
-	{
-		if (s[i] == (char)c)
-			return ((char *)(s + i));
-		i++;
-	}
-	if (c == '\0')
-		return ((char *)(s + i));
-	return (NULL);
-}
-
-char	*ft_strncpy(char *restrict dest, const char *restrict src, size_t n)
-{
-	size_t	i;
-	char	*ptr;
-
-	i = 0;
-	ptr = dest;
-	while (src[i] != '\0' && i < n)
-		*ptr++ = src[i++];
-	while (i++ < n)
-		*ptr++ = '\0';
-	return (dest);
-}
-
-void	ft_realloc(char **buf, int size)
-{
-	char	*new;
-	int		buf_len;
-
-	buf_len = ft_strlen(*buf);
-	new = malloc(sizeof(char) * (buf_len + 1 + size));
-	if (!new)
-		return ;
-	ft_strncpy(new, *buf, buf_len);
-	printf("%s\n\n%s", new, *buf);
-	free(buf);
-	buf = &new;
-}
-
-char	*extract_line(char **buffer)
-{
-	int		i;
-	char	*line;
-	char	*new_buffer;
-
-	i = 0;
-	while (*buffer[i] != '\0')
-	{
-		if (*buffer[i] == '\n') 
-		{
-			//sacar linha
-			line = malloc(sizeof(char) * i + 1);
-			ft_strncpy(line, *buffer, i + 1);
-			printf("%s\n", line);
-			//criar memoria com novo buffer avancado i
-			new_buffer = malloc(sizeof(char) * (ft_strlen(*buffer - i) + 1));
-			ft_strncpy(new_buffer, *(buffer + i + 1), ft_strlen(*buffer - i));
-			//libertar buffer antigo
-			free(*buffer);
-			//enderecar o ptr a nova memoria
-			buffer = &new_buffer;
-			return (line);
-		}
-		i++;
-	}
-	return (NULL);
+char *get_line(char **lines) {
+  if (!*lines)
+    return (NULL);
+  int index = ft_strchr(*lines, '\n');
+  if (index < 0)
+    return (NULL);
+  char *temp = malloc(sizeof(char) * index + 2);
+  ft_strncpy(temp, *lines, index + 1);
+  temp[index + 1] = '\0';
+  int n_length = ft_strlen(*lines) - index - 1;
+  char *n_lines = malloc(sizeof(char) * n_length + 1);
+  ft_strncpy(n_lines, *lines + index + 1, n_length);
+  n_lines[n_length + 1] = '\0';
+  free(*lines);
+  *lines = n_lines;
+  return (temp);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*buffer[OPEN_MAX];
-	char		*line;
-	int			read_bytes;
+    int read_bytes;
+	//initialize buffer
+    char *buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
+    char *line;
+    static char *lines = NULL;
 
-	if (fd < 0)
-		return (NULL);
-	read_bytes = -1;
-	if (buffer[fd] == NULL)
-	{
-		buffer[fd] = malloc(sizeof(char) * 1);
-		buffer[fd][0] = '\0';
-	}
-	while (ft_strchr(buffer[fd], '\n') == NULL && read_bytes != 0)
-	{
-		ft_realloc(&buffer[fd], BUFFER_SIZE);	
-		if (!buffer[fd])
-			return (NULL);
-		read_bytes = read(fd, buffer[fd], BUFFER_SIZE);
-		printf("%d", read_bytes);
-	}
-	line = extract_line(&buffer[fd]);
-	if (line)
-		return (line);
-	return (NULL);
+    //initialize line
+    read_bytes = -1;
+    while (read_bytes != 0 && ft_strchr(buffer, '\n') == -1)
+    {
+        read_bytes = read(fd, buffer, BUFFER_SIZE);
+        buffer[read_bytes] = '\0';
+        append_buffer(&lines, buffer, BUFFER_SIZE);
+    }
+    line = get_line(&lines);
+    if (line)
+        return (line);
+    return (NULL);
 }
-
 
 int main(int ac, char **av)
 {
-	char *line;
-	int fd = open("get_next_line.h", O_RDONLY);
-
+	int fd = open("test.txt", O_RDONLY);
+    char *line;
 	(void)ac;
 	av++;
-	while ((line = get_next_line(fd))!= NULL)
-		printf("%s\n", line);
-	close(fd);
+    while ((line = get_next_line(fd)) != NULL) 
+        printf("%s", line);
+    close(fd);
 }

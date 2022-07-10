@@ -1,55 +1,56 @@
 #include "get_next_line.h"
+#include "stdio.h"
 
-int	find_newline(const char **s)
+int	ft_strlen(const char *str)
+{
+	int	count;
+
+	count = 0;
+	while (*str++)
+		count++;
+	return (count);
+}
+
+int ft_strchr(const char *s, int c)
 {
 	int	i;
 
 	i = 0;
 	while (s[i] != '\0')
 	{
-		if (s[i] == '\n')
-		{
-			*s = *s + i + 1;
+		if (s[i] == (char)c)
 			return (i);
-		}
 		i++;
 	}
+	if (c == '\0')
+		return (i);
 	return (-1);
 }
 
+char *ft_strncpy(char *restrict dest, const char *restrict src, size_t n) {
+  size_t i;
+  char *ptr;
 
-char	*ft_strdup(const char *s)
-{
-	int		len;
-	char	*dup;
-	char	*ptr;
-
-	len = ft_strlen(s);
-	dup = (char *)malloc((len + 1) * sizeof(char));
-	if (dup == NULL)
-		return (NULL);
-	ptr = dup;
-	while (*s)
-		*ptr++ = *s++;
-	*ptr = '\0';
-	return (dup);
+  i = 0;
+  ptr = dest;
+  while (src[i] != '\0' && i < n)
+    *ptr++ = src[i++];
+  while (i++ < n)
+    *ptr++ = '\0';
+  return (dest);
 }
 
-char	*ft_substr(char const *s, unsigned int start, size_t len)
+void	ft_realloc(char **buf, int size)
 {
-	char	*substr;
-	size_t	true_len;
+	char	*new;
+	int		buf_len;
 
-	if (s == NULL)
-		return (NULL);
-	if ((unsigned int)ft_strlen(s) < start || len < 1)
-		return (ft_strdup(""));
-	true_len = len;
-	if ((size_t)ft_strlen(s) - start < len)
-		true_len = ft_strlen(s) - start;
-	substr = malloc(sizeof(char) * (true_len + 1));
-	if (!substr || !s)
-		return (NULL);
-	ft_strlcpy(substr, s + start, true_len + 1);
-	return (substr);
+	buf_len = ft_strlen(*buf);
+	new = malloc(sizeof(char) * (buf_len + size));
+	if (!new)
+		return ;
+	ft_strncpy(new, *buf, buf_len);
+	free(*buf);
+	*buf = new;
 }
+
