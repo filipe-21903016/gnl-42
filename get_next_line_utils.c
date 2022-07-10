@@ -40,17 +40,15 @@ char *ft_strncpy(char *restrict dest, const char *restrict src, size_t n) {
   return (dest);
 }
 
-void	ft_realloc(char **buf, int size)
+void	ft_lines_realloc(ft_lines **lines, int size)
 {
 	char	*new;
-	int		buf_len;
 
-	buf_len = ft_strlen(*buf);
-	new = malloc(sizeof(char) * (buf_len + size));
+	new = malloc(sizeof(char) * ((*lines)->length + size));
 	if (!new)
 		return ;
-	ft_strncpy(new, *buf, buf_len);
-	free(*buf);
-	*buf = new;
+	ft_strncpy(new, (*lines)->lines, (*lines)->length);
+	free((*lines)->lines);
+	(*lines)->lines = new;
 }
 
