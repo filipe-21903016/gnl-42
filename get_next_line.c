@@ -6,7 +6,7 @@
 /*   By: fzarco-l <fzarco-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 01:54:26 by fzarco-l          #+#    #+#             */
-/*   Updated: 2022/07/11 02:45:46 by fzarco-l         ###   ########.fr       */
+/*   Updated: 2022/07/11 02:50:48 by fzarco-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@
 
 void	append_buffer(t_lines **lines, char *buffer, int b_size)
 {
-	int	n;
-
 	if (!*lines)
 	{
 		*lines = malloc(sizeof(t_lines));
@@ -68,7 +66,6 @@ char	*get_line(t_lines **lines)
 char	*get_next_line(int fd)
 {
 	static t_lines	*lines;
-	char			*line;
 	char			*buffer;
 	int				read_bytes;
 
