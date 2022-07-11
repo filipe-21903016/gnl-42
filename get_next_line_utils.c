@@ -1,5 +1,4 @@
 #include "get_next_line.h"
-#include "stdio.h"
 
 int	ft_strlen(const char *str)
 {
@@ -11,25 +10,26 @@ int	ft_strlen(const char *str)
 	return (count);
 }
 
-int ft_strchr(const char *s, int c)
+int ft_strchr(char *lines, int size, int c)
 {
 	int	i;
+    if (!lines)
+        return (-1);
 
 	i = 0;
-	while (s[i] != '\0')
+	while (i < size)
 	{
-		if (s[i] == (char)c)
+		if (lines[i] == (char)c)
 			return (i);
 		i++;
 	}
-	if (c == '\0')
-		return (i);
 	return (-1);
 }
 
-char *ft_strncpy(char *restrict dest, const char *restrict src, size_t n) {
+char *ft_strncpy(char *dest, char *src, size_t n)
+{
   size_t i;
-  char *ptr;
+  char *ptr; 
 
   i = 0;
   ptr = dest;
