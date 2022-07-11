@@ -6,7 +6,7 @@
 /*   By: fzarco-l <fzarco-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 02:40:39 by fzarco-l          #+#    #+#             */
-/*   Updated: 2022/07/11 16:32:07 by fzarco-l         ###   ########.fr       */
+/*   Updated: 2022/07/11 21:50:55 by fzarco-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,19 +22,21 @@ int	ft_strlen(const char *str)
 	return (count);
 }
 
-int	ft_strchr(char *lines, int size, int c)
+int	ft_strchr(char *lines, int c)
 {
 	int	i;
 
 	if (!lines)
 		return (-1);
 	i = 0;
-	while (i < size)
+	while (lines[i] != '\0')
 	{
 		if (lines[i] == (char)c)
 			return (i);
 		i++;
 	}
+	if (c == '\0')
+		return (i);
 	return (-1);
 }
 
@@ -52,14 +54,16 @@ char	*ft_strncpy(char *dest, char *src, size_t n)
 	return (dest);
 }
 
-void	ft_lines_realloc(t_lines **lines, int size)
+void	ft_realloc(char **lines, int size)
 {
 	char	*new;
+	int		lines_len;
 
-	new = malloc(sizeof(char) * ((*lines)->length + size));
+	lines_len = ft_strlen(*lines);
+	new = malloc(sizeof(char) * (lines_len + size));
 	if (!new)
 		return ;
-	ft_strncpy(new, (*lines)->lines, (*lines)->length);
-	free((*lines)->lines);
-	(*lines)->lines = new;
+	ft_strncpy(new, *lines, lines_len);
+	free(*lines);
+	*lines = new;
 }
