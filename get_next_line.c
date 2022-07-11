@@ -6,7 +6,7 @@
 /*   By: fzarco-l <fzarco-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 01:54:26 by fzarco-l          #+#    #+#             */
-/*   Updated: 2022/07/11 02:22:07 by fzarco-l         ###   ########.fr       */
+/*   Updated: 2022/07/11 02:45:46 by fzarco-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,77 +18,74 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-void	append_buffer(ft_lines **lines, char *buffer, int b_size)
+void	append_buffer(t_lines **lines, char *buffer, int b_size)
 {
-  int	n;
-  /* Initialize lines struture */
-  if (!*lines)
+	int	n;
+
+	if (!*lines)
 	{
-    *lines = malloc(sizeof(ft_lines));
-    if (!*lines)
-    	return;
-    (*lines)->lines = malloc(sizeof(char) * b_size);
-    if (!(*lines)->lines)
-    	return;
-    ft_strncpy((*lines)->lines, buffer, b_size);
-    (*lines)->length = b_size;
+		*lines = malloc(sizeof(t_lines));
+		if (!*lines)
+			return ;
+		(*lines)->lines = malloc(sizeof(char) * b_size);
+		if (!(*lines)->lines)
+			return ;
+		ft_strncpy((*lines)->lines, buffer, b_size);
+		(*lines)->length = b_size;
 	}
-  /* lines already initialized */
-  else
-  {
-    ft_lines_realloc(lines, b_size);
-    ft_strncpy((*lines)->lines + (*lines)->length, buffer, b_size);
-    (*lines)->length = (*lines)->length + b_size;
-  }
+	else
+	{
+		ft_lines_realloc(lines, b_size);
+		ft_strncpy((*lines)->lines + (*lines)->length, buffer, b_size);
+		(*lines)->length = (*lines)->length + b_size;
+	}
 }
 
-char	*get_line(ft_lines **lines)
+char	*get_line(t_lines **lines)
 {
-    char	*temp;
-    char	*new_lines;
-    int	i;
-    int	new_length;
-    
-    /* encontrar \n nas linhas */
+	char	*temp;
+	char	*new_lines;
+	int		i;
+	int		new_length;
+
 	i = ft_strchr((*lines)->lines, (*lines)->length, '\n');
 	if (i < 0)
 		return (NULL);
-	/* criar linha para retornar */
 	temp = malloc(sizeof(char) * i + 2);
 	if (!temp)
 		return (NULL);
 	ft_strncpy(temp, (*lines)->lines, i + 1);
 	temp[i + 1] = '\0';
-	/* criar novas linhas excluindo a retirada */
 	new_length = (*lines)->length - i - 1;
 	new_lines = malloc(sizeof(char) * new_length);
 	ft_strncpy(new_lines, (*lines)->lines + i + 1, new_length);
 	free((*lines)->lines);
 	(*lines)->lines = new_lines;
-    /* atualizar o tamanho das linhas */
 	(*lines)->length = new_length;
 	return (temp);
 }
 
-char	*get_next_line(int fd) {
-    static	ft_lines *lines;
-    char	*line;
-    char	*buffer;
-    int	read_bytes;
+char	*get_next_line(int fd)
+{
+	static t_lines	*lines;
+	char			*line;
+	char			*buffer;
+	int				read_bytes;
 
-    read_bytes = -1;
-    buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
-    if (!buffer)
-    	return (NULL);
-    while (read_bytes != 0 && ft_strchr(buffer, ft_strlen(buffer), '\n') == -1)
-    {
+	read_bytes = -1;
+	buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
+	if (!buffer)
+		return (NULL);
+	while (read_bytes != 0 && ft_strchr(buffer, ft_strlen(buffer), '\n') == -1)
+	{
 		read_bytes = read(fd, buffer, BUFFER_SIZE);
 		buffer[read_bytes] = '\0';
-		append_buffer(&lines, buffer,read_bytes);
-    }
+		append_buffer(&lines, buffer, read_bytes);
+	}
 	free(buffer);
 	return (get_line(&lines));
 }
+/* #include <stdio.h> */
 /* int main(int ac, char **av) { */
 /*     int fd = open("test.txt", O_RDONLY); */
 /*     char *line; */
