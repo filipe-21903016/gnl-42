@@ -6,73 +6,47 @@
 /*   By: fzarco-l <fzarco-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 01:54:26 by fzarco-l          #+#    #+#             */
-/*   Updated: 2022/07/11 23:24:14 by fzarco-l         ###   ########.fr       */
+/*   Updated: 2022/07/12 15:10:27 by fzarco-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-void	append_buffer(char **lines, char *buffer, int b_len)
+void	append_buffer(char **lines, char *buffer)
 {	
-	int	lines_len;
-
+	char	*temp_lines;
 	if (!*lines)
-	{
-		*lines = malloc(sizeof(char) * (b_len + 1));
-		if (!*lines)
-			return ;
-		ft_strncpy(*lines, buffer, b_len);
-		(*lines)[b_len] = '\0';
-	}
-	else
-	{
-		lines_len = ft_strlen(*lines);
-		ft_realloc(lines, b_len + 1);
-		ft_strncpy(*lines + lines_len, buffer, b_len);
-		(*lines)[lines_len + b_len] = '\0';
-	}
+		*lines = ft_strdup("");
+	temp_lines = ft_strjoin(*lines, buffer);
+	free(*lines);
+	*lines = temp_lines;
 }
 
-char	*get_line(char **lines, int read_bytes)
+char	*get_line(char **lines)
 {
 	char	*temp;
 	char	*new_lines;
-	int		i;
-	int		new_length;
-	int		lines_len;
+	int		has_nline;
 
 	if (*lines == NULL)
 		return (NULL);
-	lines_len = ft_strlen(*lines);
-	if (read_bytes == 0)
+	has_nline = ft_strchr(*lines, '\n');
+	if (has_nline >= 0)
 	{
-		temp = malloc(sizeof(char) * (lines_len + 1));
-		if (!temp)
-			return (NULL);
-		/* puts("cpyin"); */
-		ft_strncpy(temp, *lines, lines_len);
-		/* puts("cpyout"); */
-		temp[lines_len] = '\0';
-		free(*lines);
-	}
-	else
-	{
-		i = ft_strchr(*lines, '\n');
-		temp = malloc(sizeof(char) * (i + 2));
-		if (!temp)
-			return (NULL);
-		ft_strncpy(temp, *lines, i + 1);
-		temp[i + 1] = '\0';
-		new_length = lines_len - i - 1;
-		new_lines = malloc(sizeof(char) * new_length);
-		if (!new_lines)
-			return (NULL);
-		ft_strncpy(new_lines, *lines + i + 1, new_length);
+		temp = ft_substr(*lines, 0, has_nline + 1);	
+		new_lines = ft_substr(*lines, has_nline + 1, ft_strlen(*lines));
 		free(*lines);
 		*lines = new_lines;
+		if (ft_strlen(*lines) > 0)
+			return (temp);
 	}
+	else 
+		temp = ft_strdup(*lines);
+	free(*lines);
+	*lines = NULL;
 	return (temp);
 }
 
@@ -82,7 +56,7 @@ char	*get_next_line(int fd)
 	char		*buffer;
 	int			read_bytes;
 
-	if (fd < 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || fd > OPEN_MAX)
 		return (NULL);
 	buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
 	if (!buffer)
@@ -95,20 +69,25 @@ char	*get_next_line(int fd)
 		if (read_bytes > 0)
 		{
 			buffer[read_bytes] = '\0';
-			append_buffer(&lines, buffer, read_bytes);
+			append_buffer(&lines, buffer);
 		}
 	}
 	free(buffer);
 	if(lines != NULL && ft_strlen(lines) < 1 && read_bytes == 0)
 		return (NULL);
-	return get_line(&lines, read_bytes);
+	return get_line(&lines);
 }
-int main(int ac, char **av) {
-    int fd = open("test.txt", O_RDONLY);
-	(void)ac;
-	av++;
-	printf("%s",get_next_line(fd));
-	if (get_next_line(fd) == NULL)
-		puts("my nigga");
-   close(fd);
-}
+/* int main(int ac, char **av) { */
+/*     int fd = open("test.txt", O_RDONLY); */
+/* 	(void)ac; */
+/* 	av++; */
+/* 	char	*temp; */
+/* 	while ((temp = get_next_line(fd))!= NULL) */
+/* 		printf("%s", temp); */
+/* 	/1* printf("DIFF:%d\n", strcmp(temp, "0123456789012345678901234567890123456789\n")); *1/ */
+/* 	/1* printf("DIFF:%d\n", strcmp(temp, "0123456789012345678901234567890123456789\n")); *1/ */
+/* 	/1* printf("<START>%s<END>", temp); *1/ */
+/* 	if (get_next_line(fd) == NULL) */
+/* 		puts("OUTPUT IS NULL"); */
+/*    close(fd); */
+/* } */
