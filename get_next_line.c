@@ -6,7 +6,7 @@
 /*   By: fzarco-l <fzarco-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 01:54:26 by fzarco-l          #+#    #+#             */
-/*   Updated: 2022/07/11 19:25:35 by fzarco-l         ###   ########.fr       */
+/*   Updated: 2022/07/12 15:13:04 by fzarco-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,16 +113,16 @@ char	*get_next_line(int fd)
 	}
 	return line;
 }
-#include <stdio.h>
-int main(int ac, char **av) {
-    int fd = open("test.txt", O_RDONLY);
-    char *line;
-	(void)ac;
-	av++;
-    /* while ((line = get_next_line(fd)) != NULL) */
-    /*     printf("%s", line); */
-	get_next_line(fd);
-	if(get_next_line(fd) == NULL)
-		puts("yup its null");
-    close(fd);
-}
+/* #include <stdio.h> */
+/* int main(int ac, char **av) { */
+/*     int fd = open("test.txt", O_RDONLY); */
+/*     char *line; */
+/* 	(void)ac; */
+/* 	av++; */
+/*     /1* while ((line = get_next_line(fd)) != NULL) *1/ */
+/*     /1*     printf("%s", line); *1/ */
+/* 	get_next_line(fd); */
+/* 	if(get_next_line(fd) == NULL) */
+/* 		puts("yup its null"); */
+/*     close(fd); */
+/* } */
