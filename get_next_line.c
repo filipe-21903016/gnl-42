@@ -6,123 +6,88 @@
 /*   By: fzarco-l <fzarco-l@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/07/11 01:54:26 by fzarco-l          #+#    #+#             */
-/*   Updated: 2022/07/12 15:13:04 by fzarco-l         ###   ########.fr       */
+/*   Updated: 2022/07/12 15:24:19 by fzarco-l         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <fcntl.h>
-#include <limits.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <unistd.h>
-#include <stdio.h>
 
-void	append_buffer(t_lines **lines, char *buffer, int b_size)
+void	append_buffer(char **lines, char *buffer)
 {	
+	char	*temp_lines;
 	if (!*lines)
-	{
-		*lines = malloc(sizeof(t_lines));
-		if (!*lines)
-			return ;
-		(*lines)->lines = malloc(sizeof(char) * b_size);
-		if (!(*lines)->lines)
-			return ;
-		ft_strncpy((*lines)->lines, buffer, b_size);
-		(*lines)->length = b_size;
-	}
-	else
-	{
-		ft_lines_realloc(lines, b_size);
-		ft_strncpy((*lines)->lines + (*lines)->length, buffer, b_size);
-		(*lines)->length = (*lines)->length + b_size;
-	}
+		*lines = ft_strdup("");
+	temp_lines = ft_strjoin(*lines, buffer);
+	free(*lines);
+	*lines = temp_lines;
 }
 
-char	*get_line(t_lines **lines, int read_bytes)
+char	*get_line(char **lines)
 {
 	char	*temp;
 	char	*new_lines;
-	int		i;
-	int		new_length;
+	int		has_nline;
 
-	if (!*lines)
+	if (*lines == NULL)
 		return (NULL);
-	printf("lines:%s", (*lines)->lines);
-	puts("passou o nul check");
-	if (read_bytes == 0)
+	has_nline = ft_strchr(*lines, '\n');
+	if (has_nline >= 0)
 	{
-		temp = malloc(sizeof(char) * ((*lines)->length + 1));
-		if (!temp)
-			return (NULL);
-		ft_strncpy(temp, (*lines)->lines, (*lines)->length);
-		new_lines = NULL;
-		new_length = 0;
+		temp = ft_substr(*lines, 0, has_nline + 1);	
+		new_lines = ft_substr(*lines, has_nline + 1, ft_strlen(*lines));
+		free(*lines);
+		*lines = new_lines;
+		if (ft_strlen(*lines) > 0)
+			return (temp);
 	}
-	else {
-		i = ft_strchr((*lines)->lines,(*lines)->length, '\n');
-		temp = malloc(sizeof(char) * i + 2);
-		if (!temp)
-			return (NULL);
-		ft_strncpy(temp, (*lines)->lines, i + 1);
-		temp[i + 1] = '\0';
-		new_length = (*lines)->length - i - 1;
-		new_lines = malloc(sizeof(char) * new_length);
-		if (!new_lines)
-			return (NULL);
-		ft_strncpy(new_lines, (*lines)->lines + i + 1, new_length);
-	}
-	free((*lines)->lines);
-	(*lines)->lines = new_lines;
-	(*lines)->length = new_length;
+	else 
+		temp = ft_strdup(*lines);
+	free(*lines);
+	*lines = NULL;
 	return (temp);
 }
 
 char	*get_next_line(int fd)
 {
-	static t_lines	*lines;
-	char			*line;
-	char			*buffer;
-	int				read_bytes;
+	static char	*lines;
+	char		*buffer;
+	int			read_bytes;
 
-	if (fd < 0 || fcntl(fd, F_GETFD) < 0)
+	if (fd < 0 || BUFFER_SIZE <= 0 || fd > OPEN_MAX)
 		return (NULL);
 	buffer = malloc(sizeof(char) * BUFFER_SIZE + 1);
 	if (!buffer)
 		return (NULL);
 	buffer[0] = '\0';
-	read_bytes = -1;
-	while (read_bytes != 0 && ft_strchr(buffer, ft_strlen(buffer), '\n') == -1)
+	read_bytes = 1;
+	while (read_bytes != 0 && ft_strchr(lines,'\n') == -1)
 	{
 		read_bytes = read(fd, buffer, BUFFER_SIZE);
 		if (read_bytes > 0)
 		{
 			buffer[read_bytes] = '\0';
-			append_buffer(&lines, buffer, read_bytes);
+			append_buffer(&lines, buffer);
 		}
 	}
 	free(buffer);
-	line = get_line(&lines, read_bytes);
-	if(line == NULL)
-		puts("yup its null");
-	if (lines->lines == NULL)
-	{
-		free(lines);
-		lines = NULL;
-	}
-	return line;
+	if(lines != NULL && ft_strlen(lines) < 1 && read_bytes == 0)
+		return (NULL);
+	return get_line(&lines);
 }
-/* #include <stdio.h> */
 /* int main(int ac, char **av) { */
 /*     int fd = open("test.txt", O_RDONLY); */
-/*     char *line; */
 /* 	(void)ac; */
 /* 	av++; */
-/*     /1* while ((line = get_next_line(fd)) != NULL) *1/ */
-/*     /1*     printf("%s", line); *1/ */
-/* 	get_next_line(fd); */
-/* 	if(get_next_line(fd) == NULL) */
-/* 		puts("yup its null"); */
-/*     close(fd); */
+/* 	char	*temp; */
+/* 	while ((temp = get_next_line(fd))!= NULL) */
+/* 		printf("%s", temp); */
+/* 	/1* printf("DIFF:%d\n", strcmp(temp, "0123456789012345678901234567890123456789\n")); *1/ */
+/* 	/1* printf("DIFF:%d\n", strcmp(temp, "0123456789012345678901234567890123456789\n")); *1/ */
+/* 	/1* printf("<START>%s<END>", temp); *1/ */
+/* 	if (get_next_line(fd) == NULL) */
+/* 		puts("OUTPUT IS NULL"); */
+/*    close(fd); */
 /* } */
